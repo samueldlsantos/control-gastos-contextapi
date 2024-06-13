@@ -1,8 +1,8 @@
 import { categories } from "../data/categories";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DatePicker, { ReactDatePickerProps } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { DraftExpense } from "../types";
+import { DraftExpense, Expense } from "../types";
 import ErrorMessage from "./ErrorMessage";
 import { useBudget } from "../hooks/useBudget";
 
@@ -15,8 +15,16 @@ const ExpenseForm = () => {
   });
 
   const [error, setError] = useState('');
+  const [previousAmount, setPreviousAmount] = useState(0);
+  const {state, dispatch, availableAmount} = useBudget();
 
-  const {dispatch} = useBudget();
+  useEffect(()=> {
+    if(state.idExpense){
+      const currentExpense = state.expenses.filter((value: Expense) => value.id === state.idExpense)[0];
+      setExpense(currentExpense)
+      setPreviousAmount(currentExpense.amount)
+    }
+  },[state.idExpense])
 
   const onChange = (
     e:
@@ -48,6 +56,17 @@ const ExpenseForm = () => {
         return
     }
 
+    if((expense.amount - previousAmount) > availableAmount){
+      setError('La cantidad sobre pasa el monto disponible')
+      return
+  }
+
+    if(state.idExpense){
+      dispatch({type: 'update-expense', payload:{ expense : { ...expense, id: state.idExpense}}  })
+    }else {
+      dispatch({type: 'add-expense', payload:{ expense }})
+    }
+
     setError('')
     //Se reinicia el formulario
     setExpense({
@@ -56,13 +75,14 @@ const ExpenseForm = () => {
       category: "",
       date: new Date(),
     })
-    dispatch({type: 'add-expense', payload:{ expense }})
+    setPreviousAmount(0);
+
   };
 
   return (
     <form action="" className="space-y-5" onSubmit={handleSubmit}>
       <legend className="uppercase text-center text-2xl font-black border-b-4 border-blue-500 py-2">
-        Nuevo gasto
+        {state.idExpense ? "Editar gasto" : "Nuevo gasto"}
       </legend>
 
       {error && <ErrorMessage>{error}</ErrorMessage>}
@@ -127,7 +147,8 @@ const ExpenseForm = () => {
       <input
         type="submit"
         className="bg-blue-600 hover:bg-blue-700 w-full p-2 uppercase text-white font-bold rounded-lg"
-        value="Registrar gasto"
+        value={state.idExpense ? "Actualizar gasto" : "Nuevo gasto"}
+
       />
     </form>
   );
