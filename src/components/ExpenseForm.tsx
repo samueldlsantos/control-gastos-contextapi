@@ -57,6 +57,9 @@ const ExpenseForm = () => {
     }
 
     if((expense.amount - previousAmount) > availableAmount){
+      console.log(expense.amount)
+      console.log(previousAmount)
+      console.log(availableAmount)
       setError('La cantidad sobre pasa el monto disponible')
       return
   }

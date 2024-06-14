@@ -5,6 +5,7 @@ import {
   budgetReducer,
   initialState,
 } from "../reducers/budget-reducer";
+import { Expense } from "../types";
 
 type BudgetContextProps = {
   state: BudgetState;
@@ -25,12 +26,12 @@ export const BudgetProvider = ({ children }: BudgetProviderProps) => {
   const [state, dispatch] = useReducer(budgetReducer, initialState);
 
   const totalExpenses = useMemo(
-    () => state.expenses.reduce((total, expense) => total + expense.amount, 0),
+    () => state.expenses.reduce((total:number, expense:Expense) => total + expense.amount, 0),
     [state.expenses]
   );
   const availableAmount = useMemo(
     () => state.budget - totalExpenses,
-    [state.expenses]
+    [state.expenses, state.budget]
   );
 
   return (
