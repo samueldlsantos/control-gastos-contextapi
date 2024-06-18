@@ -5,7 +5,7 @@ import ExpenseDetail from "./ExpenseDetail";
 const ExpenseList = () => {
     const {state} = useBudget();
 
-    const expensesFiltered = useMemo(()=> state.categoryFiltered ? state.expenses.filter((expense) => expense.category === state.categoryFiltered) : state.expenses , [state.categoryFiltered])
+    const expensesFiltered = useMemo(()=> state.categoryFiltered ? state.expenses.filter((expense) => expense.category === state.categoryFiltered) : state.expenses , [state.categoryFiltered, state.expenses])
   
     const isEmpty = useMemo(() => expensesFiltered.length === 0, [expensesFiltered]) 
     return (
